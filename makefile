@@ -7,7 +7,7 @@ LIBS	:= $(patsubst source/%.c,lib/lib%.a,$(SOURCES))
 
 
 
-all: $(LIBS)
+all: $(LIBS) lib/libsorts.a
 dirs: $(DIRS)
 
 .PHONY: all dirs clean
@@ -17,11 +17,14 @@ dirs: $(DIRS)
 
 
 
-build/%.o: source/%.c include/%.h | $(DIRS)
-	gcc -c $< -Wall -O3 -o $@ -I include/
+build/%.o: source/%.c | $(DIRS)
+	gcc -c $^ -Wall -O3 -o $@ -I include/
 
 lib/lib%.a: build/%.o | $(DIRS)
-	ar cr $@ $<
+	ar cr $@ $^
+
+lib/libsorts.a: $(OBJECTS)
+	ar cr $@ $^
 
 
 
