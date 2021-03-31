@@ -1,21 +1,21 @@
 #include "merge_sort.h"
 
-static inline bool merge(void *ptr, void *temp, size_t left, size_t middle, size_t right, size_t size, int (*compare)(const void *, const void *))
+static bool merge(void *ptr, void *buffer, size_t left, size_t middle, size_t right, size_t size, int (*compare)(const void *, const void *))
 {
     int i = left, j = middle + 1, k = left;
 
-    memcpy(temp + left * size, ptr + left * size, (right - left + 1) * size);
+    memcpy(buffer + left * size, ptr + left * size, (right - left + 1) * size);
     
     while (i <= middle && j <= right)
     {
-        if (compare(temp + i * size, temp + j * size) > 0)
+        if (compare(buffer + i * size, buffer + j * size) > 0)
         {
-            memcpy(ptr + k * size, temp + j * size, size);
+            memcpy(ptr + k * size, buffer + j * size, size);
             j++;
         }
         else
         {
-            memcpy(ptr + k * size, temp + i * size, size);
+            memcpy(ptr + k * size, buffer + i * size, size);
             i++;
         }
         k++;
@@ -23,14 +23,14 @@ static inline bool merge(void *ptr, void *temp, size_t left, size_t middle, size
 
     while (i <= middle)
     {
-        memcpy(ptr + k * size, temp + i * size, size);
+        memcpy(ptr + k * size, buffer + i * size, size);
         i++;
         k++;
     }
 
     while (j <= right)
     {
-        memcpy(ptr + k * size, temp + j * size, size);
+        memcpy(ptr + k * size, buffer + j * size, size);
         j++;
         k++;
     }
@@ -38,16 +38,16 @@ static inline bool merge(void *ptr, void *temp, size_t left, size_t middle, size
 	return true;
 }
 
-static bool merge_sort_recursive(void *ptr, void *temp, size_t left, size_t right, size_t size, int (*compare)(const void *, const void *))
+static bool merge_sort_recursive(void *ptr, void *buffer, size_t left, size_t right, size_t size, int (*compare)(const void *, const void *))
 {
     if (left < right)
     {
         int middle = left + (right - left) / 2;
         
-        merge_sort_recursive(ptr, temp, left, middle, size, compare);
-        merge_sort_recursive(ptr, temp, middle + 1, right, size, compare);
+        merge_sort_recursive(ptr, buffer, left, middle, size, compare);
+        merge_sort_recursive(ptr, buffer, middle + 1, right, size, compare);
         
-        merge(ptr, temp, left, middle, right, size, compare);
+        merge(ptr, buffer, left, middle, right, size, compare);
         
         return true;
     }
@@ -64,14 +64,14 @@ static bool merge_sort_recursive(void *ptr, void *temp, size_t left, size_t righ
  */
 bool merge_sort(void *ptr, size_t num, size_t size, int (*compare)(const void *, const void *))
 {
-	if (ptr == NULL || num <= 0 || size <= 0 || compare == NULL)
+    void *buffer = calloc(num, size);
+
+	if (ptr == NULL || num <= 0 || size <= 0 || compare == NULL || buffer == NULL)
 		return false;
 
-    void *temp = calloc(num, size);
+    bool result = merge_sort_recursive(ptr, buffer, 0, num - 1, size, compare);
 
-    bool result = merge_sort_recursive(ptr, temp, 0, num - 1, size, compare);
-
-    free(temp);
+    free(buffer);
 
 	return result;
 }
