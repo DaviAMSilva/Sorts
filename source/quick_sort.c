@@ -1,5 +1,19 @@
 #include "quick_sort.h"
 
+static int median(void *ptr, size_t size, int (*compare)(const void *, const void *), int start, int end)
+{
+    int middle = start + ((end - start) >> 1);
+
+    // (s > m) ^ (s > e)
+    if ((compare(ptr + start * size, ptr + middle * size) > 0) ^ (compare(ptr + start * size, ptr + end * size) > 0))
+        return start;
+    // (m < s) ^ (m < e)
+    else if ((compare(ptr + middle * size, ptr + start * size) < 0) ^ (compare(ptr + middle * size, ptr + end * size) < 0))
+        return middle;
+    else
+        return end;
+}
+
 static bool swap(void *a, void *b, void *buffer, size_t size)
 {
 	if (a == NULL || b == NULL || buffer == NULL || size <= 0)
@@ -16,6 +30,10 @@ static bool swap(void *a, void *b, void *buffer, size_t size)
 static int partition(void *ptr, size_t size, int (*compare)(const void *, const void *), void *value, void *buffer, int start, int end)
 {
 	int index = start;
+    
+    // Utilizando a estratégia da mediana de 3 números
+    swap(ptr + median(ptr, size, compare, start, end) * size, ptr + end * size, buffer, size);
+
 	memcpy(value, ptr + end * size, size);
 
 	for (int i = start; i <= end - 1; i++)
@@ -27,9 +45,9 @@ static int partition(void *ptr, size_t size, int (*compare)(const void *, const 
 		}
 	}
 
-	swap(ptr + (index) * size, ptr + end * size, buffer, size);
+	swap(ptr + index * size, ptr + end * size, buffer, size);
 
-	return (index);
+	return index;
 }
 
 static bool quick_sort_recursive(void *ptr, size_t size, int (*compare)(const void *, const void *), void *value, void *buffer, int start, int end)

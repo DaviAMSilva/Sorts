@@ -1,6 +1,7 @@
 #ifndef SORTS_H
 #define SORTS_H
 
+#include "binary_insertion_sort.h"
 #include "bogo_sort.h"
 #include "bubble_sort.h"
 #include "heap_sort.h"
